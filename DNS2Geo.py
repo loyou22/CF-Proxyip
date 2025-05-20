@@ -1,16 +1,15 @@
 import sys
 import io
-
-# 解决Windows命令行输出中文报错
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
-
 import dns.resolver
 import time
 import requests
 import socket
 import os
 import subprocess
+
+# 解决Windows命令行输出中文报错
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
 
 def load_country_mapping(file_path):
     country_mapping = {}
@@ -35,7 +34,7 @@ def check_tcp_connection(ip, port=443, timeout=5):
     except (socket.timeout, socket.error):
         return False
 
-def get_country_info(ip, country_mapping, retries=10, delay=1):
+def get_country_info(ip, country_mapping, retries=6, delay=1):
     attempt = 0
     while attempt < retries:
         if not check_tcp_connection(ip, port=443):
@@ -194,11 +193,7 @@ def save_ip_txt_for_cloudflarescanner(allowed_ip_file, target_path):
         print(f"已保存 {target_path}")
 
         # 计算IP数量
-        ip_count = 0
-        with open(target_path, 'r', encoding='utf-8') as f:
-            for line in f:
-                if line.strip():
-                    ip_count += 1
+        ip_count = sum(1 for line in open(target_path, 'r', encoding='utf-8') if line.strip())
 
         exe_path = os.path.join(os.path.dirname(target_path), "CloudflareScanner.exe")
         if os.path.exists(exe_path):
