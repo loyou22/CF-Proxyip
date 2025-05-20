@@ -13,6 +13,11 @@ jobs:
   run-script:
     runs-on: windows-latest
 
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_ACTOR: ${{ github.actor }}
+      PYTHONIOENCODING: utf-8
+
     steps:
       - name: 检出代码
         uses: actions/checkout@v4
@@ -24,10 +29,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install dnspython requests
-
-      - name: 设置 Python 控制台编码为 UTF-8
-        run: echo PYTHONIOENCODING=utf-8 >> %GITHUB_ENV%
-        shell: cmd
 
       - name: 检查 CloudflareScanner.exe 是否存在
         run: |
