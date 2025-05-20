@@ -3,7 +3,7 @@ name: IP Checker
 on:
   # 手动触发工作流
   workflow_dispatch:
-  # 定时触发，每 6 小时一次
+  # 定时触发，每 3 小时一次
   schedule:
     - cron: '0 */6 * * *'
 
