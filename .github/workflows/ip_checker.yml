@@ -1,59 +1,48 @@
-name: IP 检测与处理脚本
+name: IP Checker
 
+# 配置工作流触发方式
 on:
+  # 手动触发工作流
   workflow_dispatch:
+  # 定时触发，每 6 小时一次
   schedule:
-    - cron: '0 */3 * * *' # 每3小时（UTC）
+    - cron: '0 */6 * * *'
 
+# 设置权限
 permissions:
-  contents: write
-  actions: read    
+  contents: write  # 允许修改仓库内容
+  actions: read    # 允许读取动作
 
 jobs:
-  run-script:
-    runs-on: windows-latest
-
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GITHUB_ACTOR: ${{ github.actor }}
-      PYTHONIOENCODING: utf-8
-      COMMIT_USER_NAME: github-actions[bot]
-      COMMIT_USER_EMAIL: github-actions[bot]@users.noreply.github.com
+  check-ips:
+    runs-on: ubuntu-latest  # 在最新的 Ubuntu 环境中运行
 
     steps:
-      - name: 检出代码
-        uses: actions/checkout@v4
+      # 第一步：检出仓库代码
+      - name: Checkout repository
+        uses: actions/checkout@v4  # 检出当前仓库代码
 
-      - name: 检查 Python 环境
-        run: python --version
-
-      - name: 安装依赖
-        run: |
-          python -m pip install --upgrade pip
-          pip install dnspython requests
-
-      - name: 检查 CloudflareScanner.exe 是否存在
-        run: |
-          if (!(Test-Path "CloudflareScanner\CloudflareScanner.exe")) {
-            Write-Host "CloudflareScanner.exe 不存在"
-          } else {
-            Write-Host "CloudflareScanner.exe 存在"
-          }
-        shell: pwsh
-
-      - name: 运行 DNS2Geo 脚本
-        run: python DNS2Geo.py
-
-      - name: 查看目录结构
-        run: |
-          Get-ChildItem -Recurse
-        shell: pwsh
-
-      - name: 上传结果文件
-        uses: actions/upload-artifact@v4
+      # 第二步：设置 Python 环境
+      - name: Set up Python
+        uses: actions/setup-python@v5  # 设置 Python 环境
         with:
-          name: result-files
-          path: |
-            ips/
-            ips_with_country/
-            CloudflareScanner/ip.txt
+          python-version: '3.x'  # 使用 3.x 版本的 Python
+
+      # 第三步：安装依赖
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip  # 升级 pip
+          pip install dnspython requests  # 安装 dnspython 和 requests 库
+
+      # 第四步：运行 IP 检查脚本
+      - name: Run IP checker script
+        run: python DNS2Geo.py  # 执行 DNS2Geo.py 脚本
+
+      # 第五步：提交并推送结果
+      - name: Commit and push results
+        uses: stefanzweifel/git-auto-commit-action@v5  # 使用 Git 自动提交动作
+        with:
+          commit_message: 'chore: update IP/country info results'  # 提交信息
+          branch: ${{ github.ref }}  # 提交到当前分支
+          commit_user_name: github-actions[bot]  # 提交者用户名
+          commit_user_email: github-actions[bot]@users.noreply.github.com  # 提交者邮箱
