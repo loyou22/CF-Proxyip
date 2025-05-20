@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write   # 已设置为读写权限
 
 jobs:
   run-script:
