@@ -338,3 +338,9 @@ if __name__ == "__main__":
         countries_file='countries.txt',
         RETRY=10
     )
+    # 删除 result.csv
+    try:
+        os.remove(result_csv)
+        print(f"已删除 {result_csv}")
+    except Exception as e:
+        print(f"删除 {result_csv} 时发生错误: {e}")
