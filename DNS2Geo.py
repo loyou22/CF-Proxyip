@@ -60,13 +60,13 @@ def get_country_info(ip, country_mapping, retries=10, delay=1):
 def collect_all_ips(manual_ip_file, domains_file, output_file):
     all_ips = set()
     if os.path.exists(manual_ip_file):
-        with open(manual_ip_file, 'r') as f:
+        with open(manual_ip_file, 'r', encoding='utf-8') as f:
             for line in f:
                 ip = line.strip()
                 if ip:
                     all_ips.add(ip)
     if os.path.exists(domains_file):
-        with open(domains_file, 'r') as f:
+        with open(domains_file, 'r', encoding='utf-8') as f:
             domains = [line.strip() for line in f if line.strip()]
         for domain in domains:
             try:
@@ -80,14 +80,14 @@ def collect_all_ips(manual_ip_file, domains_file, output_file):
             except Exception as e:
                 print(f"域名 {domain} 解析失败: {e}")
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    with open(output_file, 'w') as f:
+    with open(output_file, 'w', encoding='utf-8') as f:
         for ip in sorted(all_ips):
             f.write(f"{ip}#未检测\n")
     print(f"所有采集的IP已保存到 {output_file}")
 
 def detect_all_ip_country(input_file, output_file, country_mapping):
     ip_info = {}
-    with open(input_file, 'r') as f:
+    with open(input_file, 'r', encoding='utf-8') as f:
         for line in f:
             if '#' in line:
                 ip, info = line.strip().split('#', 1)
@@ -96,18 +96,18 @@ def detect_all_ip_country(input_file, output_file, country_mapping):
         if info == "未检测":
             country = get_country_info(ip, country_mapping)
             ip_info[ip] = country
-    with open(output_file, 'w') as f:
+    with open(output_file, 'w', encoding='utf-8') as f:
         for ip, info in sorted(ip_info.items(), key=lambda x: x[1]):
             f.write(f"{ip}#{info}\n")
     print(f"所有IP归属地检测完成，已更新到 {output_file}")
 
 def extract_ips_from_file(input_file, output_file):
     try:
-        with open(input_file, 'r') as file:
+        with open(input_file, 'r', encoding='utf-8') as file:
             lines = file.readlines()
         ips = {line.strip().split('#')[0] for line in lines if '#' in line}
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
-        with open(output_file, 'w') as file:
+        with open(output_file, 'w', encoding='utf-8') as file:
             for ip in sorted(ips):
                 file.write(f"{ip}\n")
         print(f"提取的IP已保存到 {output_file}")
@@ -131,7 +131,7 @@ def filter_ips_by_allowed_countries(
         unreachable_ips = []
         unreachable_info = []
 
-        with open(input_file, 'r') as file:
+        with open(input_file, 'r', encoding='utf-8') as file:
             for line in file:
                 parts = line.strip().split('#')
                 if len(parts) == 2:
@@ -155,16 +155,16 @@ def filter_ips_by_allowed_countries(
             (blocked_with_info_file, sorted(blocked_info, key=lambda x: x.split('#')[1]))
         ]:
             os.makedirs(os.path.dirname(path), exist_ok=True)
-            with open(path, 'w') as f:
+            with open(path, 'w', encoding='utf-8') as f:
                 for item in data:
                     f.write(f"{item}\n")
 
         os.makedirs(os.path.dirname(unreachable_ip_file), exist_ok=True)
-        with open(unreachable_ip_file, 'w') as f:
+        with open(unreachable_ip_file, 'w', encoding='utf-8') as f:
             for ip in sorted(unreachable_ips):
                 f.write(f"{ip}\n")
         os.makedirs(os.path.dirname(unreachable_with_info_file), exist_ok=True)
-        with open(unreachable_with_info_file, 'w') as f:
+        with open(unreachable_with_info_file, 'w', encoding='utf-8') as f:
             for item in sorted(unreachable_info, key=lambda x: x.split('#')[1]):
                 f.write(f"{item}\n")
 
@@ -181,9 +181,9 @@ def filter_ips_by_allowed_countries(
 def save_ip_txt_for_cloudflarescanner(allowed_ip_file, target_path):
     try:
         os.makedirs(os.path.dirname(target_path), exist_ok=True)
-        with open(allowed_ip_file, 'r') as fr:
+        with open(allowed_ip_file, 'r', encoding='utf-8') as fr:
             lines = fr.readlines()
-        with open(target_path, 'w') as fw:
+        with open(target_path, 'w', encoding='utf-8') as fw:
             for line in lines:
                 fw.write(line)
         print(f"已保存 {target_path}")
@@ -201,7 +201,7 @@ def run_cloudflarescanner_with_dn():
         sys.exit(1)
     # 统计ip.txt行数
     ip_count = 0
-    with open(ip_txt_path, 'r') as f:
+    with open(ip_txt_path, 'r', encoding='utf-8') as f:
         for line in f:
             if line.strip():
                 ip_count += 1
